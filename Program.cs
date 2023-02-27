@@ -1,5 +1,6 @@
 using DeskBookingAPI.Entities;
 using DeskBookingAPI.Services;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDeskService, DeskService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddSwaggerGen();
 

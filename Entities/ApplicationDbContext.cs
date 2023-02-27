@@ -20,6 +20,15 @@ namespace DeskBookingAPI.Entities
             modelBuilder.Entity<Employee>()
                 .Property(e => e.LastName)
                 .IsRequired();
+
+            modelBuilder.Entity<Desk>()
+                .Property(d => d.isAvailable)
+                .HasDefaultValue(true);
+
+/*            modelBuilder.Entity<Room>()
+                .HasMany(r => r.Desks)
+                .WithOne()
+                .HasForeignKey("Desk");*/
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
