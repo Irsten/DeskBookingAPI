@@ -42,8 +42,10 @@ namespace DeskBookingAPI.Controllers
             var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
             if (employee == null) { return BadRequest("The room cannot be deleted because this employee does not exist."); }
             if (employee.IsAdmin == false) { return BadRequest("You have to be an administrator to delete a room."); }
+
             var room = _dbContext.Rooms.FirstOrDefault(r => r.Id == dto.RoomId);
             if (room == null) { return BadRequest("This room does not exist."); }
+
             var desksInRoom = _dbContext.Desks.Where(d => d.RoomId == dto.RoomId).ToList();
             if (desksInRoom != null) { return BadRequest("The room cannot be deleted if there are any desks in it."); }
 

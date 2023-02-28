@@ -31,8 +31,6 @@ namespace DeskBookingAPI.Services
 
         public bool CreateDesk(int roomId)
         {
-            // TODO
-            // Only admin
             _dbContext.Desks.Add(new Desk()
             {
                 isAvailable= true,
@@ -45,7 +43,6 @@ namespace DeskBookingAPI.Services
 
         public List<RoomDeskDto> GetAllDesksInRoom(int roomId)
         {
-            // TODO
             var desks = _dbContext.Desks.Where(d => d.RoomId== roomId).ToList();
             var roomDesks = _mapper.Map<List<RoomDeskDto>>(desks);
 
@@ -55,16 +52,13 @@ namespace DeskBookingAPI.Services
 
         public Desk GetDesk(int deskId)
         {
-            // TODO
-            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == deskId); 
+            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == deskId);
 
             return desk;
         }
 
         public bool DeleteDesk(Desk desk)
         {
-            // TODO
-            // Only admin
             _dbContext.Desks.Remove(desk);
             _dbContext.SaveChanges();
 
@@ -73,7 +67,6 @@ namespace DeskBookingAPI.Services
 
         public bool BookDesk(BookingDto dto)
         {
-            // TODO
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             desk.BookingDate = dto.BookingDate;
             desk.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
@@ -86,7 +79,6 @@ namespace DeskBookingAPI.Services
 
         public bool CancelReservation(Desk desk)
         {
-            // TODO
             desk.BookingDate = null;
             desk.ExpirationDate = null;
             desk.isAvailable = true;
@@ -98,7 +90,6 @@ namespace DeskBookingAPI.Services
 
         public bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays)
         {
-            // TODO
             desk.BookingDate = null;
             desk.ExpirationDate = null;
             desk.isAvailable = true;
@@ -116,7 +107,6 @@ namespace DeskBookingAPI.Services
 
         public bool ChangeDays(BookingDto dto)
         {
-            // TODO
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             desk.BookingDate = dto.BookingDate;
             desk.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
