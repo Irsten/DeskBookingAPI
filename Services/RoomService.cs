@@ -2,6 +2,7 @@
 using DeskBookingAPI.Entities;
 using DeskBookingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeskBookingAPI.Services
 {
@@ -9,7 +10,7 @@ namespace DeskBookingAPI.Services
     {
         bool CreateRoom();
         bool DeleteRoom(Room room);
-        List<GetAllRoomsDto> GetAll();
+        List<RoomDto> GetAll();
     }
 
     public class RoomService : IRoomService
@@ -41,17 +42,17 @@ namespace DeskBookingAPI.Services
         }
 
 
-        public List<GetAllRoomsDto> GetAll()
+        public List<RoomDto> GetAll()
         {
-            var listOfRooms = new List<GetAllRoomsDto>();
+            var listOfRooms = new List<RoomDto>();
             var rooms = _dbContext.Rooms.ToList();
             foreach (var room in rooms)
             {
-                var tempDesks = _dbContext.Desks.Where(d => d.RoomId == room.Id).ToList();
-                var tempRoom = new GetAllRoomsDto()
+                var tempDesks = _dbContext.Desks.Include(e => e.Employee).Where(d => d.RoomId == room.Id).ToList();
+                var tempRoom = new RoomDto()
                 {
                     RoomId = room.Id,
-                    Desks = _mapper.Map<List<RoomDeskDto>>(tempDesks),
+                    Desks = _mapper.Map<List<DeskDto>>(tempDesks),
                 };
                 listOfRooms.Add(tempRoom);
             }

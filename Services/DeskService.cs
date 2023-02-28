@@ -2,6 +2,7 @@
 using DeskBookingAPI.Entities;
 using DeskBookingAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeskBookingAPI.Services
 {
@@ -10,8 +11,8 @@ namespace DeskBookingAPI.Services
         bool BookDesk(BookingDto dto);
         bool CreateDesk(int roomId);
         bool DeleteDesk(Desk desk);
-        List<RoomDeskDto> GetAllDesksInRoom(int roomId);
-        Desk GetDesk(int deskId);
+        List<DeskDto> GetAllDesksInRoom(int roomId);
+        DeskDto GetDesk(int deskId);
         bool CancelReservation(Desk desk);
         bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays);
         public bool ChangeDays(BookingDto dto);
@@ -41,20 +42,21 @@ namespace DeskBookingAPI.Services
             return true;
         }
 
-        public List<RoomDeskDto> GetAllDesksInRoom(int roomId)
+        public List<DeskDto> GetAllDesksInRoom(int roomId)
         {
-            var desks = _dbContext.Desks.Where(d => d.RoomId== roomId).ToList();
-            var roomDesks = _mapper.Map<List<RoomDeskDto>>(desks);
+            var desks = _dbContext.Desks.Include(e => e.Employee).Where(d => d.RoomId== roomId).ToList();
+            var roomDesks = _mapper.Map<List<DeskDto>>(desks);
 
             return roomDesks;
         }
 
 
-        public Desk GetDesk(int deskId)
+        public DeskDto GetDesk(int deskId)
         {
-            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == deskId);
+            var desk = _dbContext.Desks.Include(e => e.Employee).FirstOrDefault(d => d.Id == deskId);
+            var mappedDesk = _mapper.Map<DeskDto>(desk);
 
-            return desk;
+            return mappedDesk;
         }
 
         public bool DeleteDesk(Desk desk)

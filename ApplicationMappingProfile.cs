@@ -9,6 +9,7 @@ namespace DeskBookingAPI
         public ApplicationMappingProfile()
         {
             CreateMap<Desk, RoomDeskDto>();
+            CreateMap<Desk, DeskDto>();
         }
     }
 }

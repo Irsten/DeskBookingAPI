@@ -2,9 +2,9 @@
 
 namespace DeskBookingAPI.Models
 {
-    public class GetAllRoomsDto
+    public class RoomDto
     {
         public int RoomId { get; set; }
-        public List<RoomDeskDto> Desks { get; set; }
+        public List<DeskDto> Desks { get; set; }
     }
 }
