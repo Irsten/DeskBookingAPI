@@ -16,6 +16,14 @@ namespace DeskBookingAPI.Controllers
             _roomService = roomService;
         }
 
+        [HttpGet("get-all")]
+        public ActionResult GetAll()
+        {
+            var rooms = _roomService.GetAll();
+
+            return Ok(rooms);
+        }
+
         [HttpPost("create/{employeeId}")]
         public ActionResult CreateRoom([FromRoute] int employeeId)
         {
@@ -44,14 +52,5 @@ namespace DeskBookingAPI.Controllers
 
             return Ok("The room has been deleted.");
         }
-
-        [HttpGet("get-all")]
-        public ActionResult GetAll() 
-        {
-            var rooms = _roomService.GetAll();
-
-            return Ok(rooms);
-        }
-
     }
 }

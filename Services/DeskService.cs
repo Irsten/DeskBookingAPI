@@ -12,8 +12,9 @@ namespace DeskBookingAPI.Services
         bool DeleteDesk(Desk desk);
         List<RoomDeskDto> GetAllDesksInRoom(int roomId);
         Desk GetDesk(int deskId);
-        bool CancelBooking();
-        bool ChangeBooking();
+        bool CancelReservation(Desk desk);
+        bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays);
+        public bool ChangeDays(BookingDto dto);
     }
 
     public class DeskService : IDeskService
@@ -83,15 +84,44 @@ namespace DeskBookingAPI.Services
             return true;
         }
 
-        public bool CancelBooking()
+        public bool CancelReservation(Desk desk)
         {
             // TODO
+            desk.BookingDate = null;
+            desk.ExpirationDate = null;
+            desk.isAvailable = true;
+            desk.EmployeeId = null;
+            _dbContext.SaveChanges();
+
             return true;
         }
 
-        public bool ChangeBooking()
+        public bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays)
         {
             // TODO
+            desk.BookingDate = null;
+            desk.ExpirationDate = null;
+            desk.isAvailable = true;
+            desk.EmployeeId = null;
+
+            selectedDesk.BookingDate = bookingDate;
+            selectedDesk.ExpirationDate = bookingDate.AddDays(bookingDays - 1);
+            selectedDesk.isAvailable = false;
+            selectedDesk.EmployeeId = employee.Id;
+
+            _dbContext.SaveChanges();
+
+            return true;
+        }
+
+        public bool ChangeDays(BookingDto dto)
+        {
+            // TODO
+            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
+            desk.BookingDate = dto.BookingDate;
+            desk.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
+            _dbContext.SaveChanges();
+
             return true;
         }
     }

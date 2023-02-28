@@ -16,6 +16,14 @@ namespace DeskBookingAPI.Controllers
             _employeeService = employeeService;
         }
 
+        [HttpGet("get-all")]
+        public ActionResult GetAll()
+        {
+            var employees = _employeeService.GetAll();
+
+            return Ok(employees);
+        }
+
         [HttpPost("create")]
         public ActionResult CreateEmployee([FromBody] EmployeeDto employeeDto)
         {
@@ -26,14 +34,6 @@ namespace DeskBookingAPI.Controllers
             if(!process) { return BadRequest("Employee cannot be created."); }
 
             return Ok("The employee has been created.");
-        }
-
-        [HttpGet("get-all")]
-        public ActionResult GetAll()
-        {
-            var employees = _employeeService.GetAll();
-
-            return Ok(employees);
         }
 
         [HttpDelete("delete/{employeeId}")]
