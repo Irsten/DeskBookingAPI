@@ -4,6 +4,7 @@ using DeskBookingAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeskBookingAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230305170610_ChangeBookingMethod")]
+    partial class ChangeBookingMethod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,10 +32,21 @@ namespace DeskBookingAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<DateTime?>("BookingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("RoomId");
 
@@ -64,37 +77,6 @@ namespace DeskBookingAPI.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("DeskBookingAPI.Entities.Reservation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime?>("BookingDate")
-                        .IsRequired()
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DeskId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ExpirationDate")
-                        .IsRequired()
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeskId");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("Reservations");
-                });
-
             modelBuilder.Entity("DeskBookingAPI.Entities.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -110,32 +92,19 @@ namespace DeskBookingAPI.Migrations
 
             modelBuilder.Entity("DeskBookingAPI.Entities.Desk", b =>
                 {
+                    b.HasOne("DeskBookingAPI.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId");
+
                     b.HasOne("DeskBookingAPI.Entities.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("DeskBookingAPI.Entities.Reservation", b =>
-                {
-                    b.HasOne("DeskBookingAPI.Entities.Desk", "Desk")
-                        .WithMany()
-                        .HasForeignKey("DeskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DeskBookingAPI.Entities.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Desk");
-
                     b.Navigation("Employee");
+
+                    b.Navigation("Room");
                 });
 #pragma warning restore 612, 618
         }

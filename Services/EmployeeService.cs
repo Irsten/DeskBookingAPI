@@ -13,7 +13,6 @@ namespace DeskBookingAPI.Services
 
     public class EmployeeService : IEmployeeService
     {
-        // TODO
         private readonly ApplicationDbContext _dbContext;
         public EmployeeService(ApplicationDbContext dbContext)
         {

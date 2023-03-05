@@ -8,14 +8,14 @@ namespace DeskBookingAPI.Services
 {
     public interface IDeskService
     {
-        bool BookDesk(BookingDto dto);
+        //bool BookDesk(BookingDto dto);
         bool CreateDesk(int roomId);
         bool DeleteDesk(Desk desk);
         List<DeskDto> GetAllDesksInRoom(int roomId);
         DeskDto GetDesk(int deskId);
-        bool CancelReservation(Desk desk);
-        bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays);
-        public bool ChangeDays(BookingDto dto);
+       // bool CancelReservation(Desk desk);
+        //bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays);
+       // public bool ChangeDays(BookingDto dto);
     }
 
     public class DeskService : IDeskService
@@ -34,7 +34,6 @@ namespace DeskBookingAPI.Services
         {
             _dbContext.Desks.Add(new Desk()
             {
-                isAvailable= true,
                 RoomId= roomId,
             });
             _dbContext.SaveChanges();
@@ -44,7 +43,16 @@ namespace DeskBookingAPI.Services
 
         public List<DeskDto> GetAllDesksInRoom(int roomId)
         {
-            var desks = _dbContext.Desks.Include(e => e.Employee).Where(d => d.RoomId== roomId).ToList();
+            // TODO
+            var desks = _dbContext.Desks.Include(r => r.Reservations).Where(d => d.RoomId == roomId).ToList();
+            foreach (var desk in desks)
+            {
+                foreach (var reservation in desk.Reservations)
+                {
+                    reservation.Employee = _dbContext.Employees.FirstOrDefault(e => e.Id == reservation.EmployeeId);
+                }
+            }
+
             var roomDesks = _mapper.Map<List<DeskDto>>(desks);
 
             return roomDesks;
@@ -53,7 +61,16 @@ namespace DeskBookingAPI.Services
 
         public DeskDto GetDesk(int deskId)
         {
-            var desk = _dbContext.Desks.Include(e => e.Employee).FirstOrDefault(d => d.Id == deskId);
+            // TODO
+            var desk = _dbContext.Desks.Include(r => r.Reservations).FirstOrDefault(d => d.Id == deskId);
+            if (desk.Reservations != null)
+            {
+                foreach (var reservation in desk.Reservations)
+                {
+                    reservation.Employee = _dbContext.Employees.FirstOrDefault(e => e.Id == reservation.EmployeeId);
+                }
+            }
+
             var mappedDesk = _mapper.Map<DeskDto>(desk);
 
             return mappedDesk;
@@ -67,13 +84,22 @@ namespace DeskBookingAPI.Services
             return true;
         }
 
-        public bool BookDesk(BookingDto dto)
+        /*public bool BookDesk(BookingDto dto)
         {
+            // TODO
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
-            desk.BookingDate = dto.BookingDate;
+
+            _dbContext.Reservations.Add(new Reservation()
+            {
+                DeskId = dto.DeskId,
+                EmployeeId = dto.EmployeeId,
+                BookingDate = dto.BookingDate.AddDays(dto.BookingDays - 1),
+                ExpirationDate = dto.BookingDate
+            }); 
+            *//*desk.BookingDate = dto.BookingDate;
             desk.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
             desk.EmployeeId = dto.EmployeeId;
-            desk.isAvailable = false;
+            desk.isAvailable = false;*//*
             _dbContext.SaveChanges();
 
             return true;
@@ -81,10 +107,11 @@ namespace DeskBookingAPI.Services
 
         public bool CancelReservation(Desk desk)
         {
-            desk.BookingDate = null;
+            // TODO
+            *//*desk.BookingDate = null;
             desk.ExpirationDate = null;
             desk.isAvailable = true;
-            desk.EmployeeId = null;
+            desk.EmployeeId = null;*//*
             _dbContext.SaveChanges();
 
             return true;
@@ -92,7 +119,8 @@ namespace DeskBookingAPI.Services
 
         public bool ChangeReservation(Employee employee, Desk desk, Desk selectedDesk, DateTime bookingDate, int bookingDays)
         {
-            desk.BookingDate = null;
+            // TODO
+            *//*desk.BookingDate = null;
             desk.ExpirationDate = null;
             desk.isAvailable = true;
             desk.EmployeeId = null;
@@ -100,7 +128,7 @@ namespace DeskBookingAPI.Services
             selectedDesk.BookingDate = bookingDate;
             selectedDesk.ExpirationDate = bookingDate.AddDays(bookingDays - 1);
             selectedDesk.isAvailable = false;
-            selectedDesk.EmployeeId = employee.Id;
+            selectedDesk.EmployeeId = employee.Id;*//*
 
             _dbContext.SaveChanges();
 
@@ -109,12 +137,13 @@ namespace DeskBookingAPI.Services
 
         public bool ChangeDays(BookingDto dto)
         {
+            // TODO
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
-            desk.BookingDate = dto.BookingDate;
-            desk.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
+           *//* desk.BookingDate = dto.BookingDate;
+            desk.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);*//*
             _dbContext.SaveChanges();
 
             return true;
-        }
+        }*/
     }
 }

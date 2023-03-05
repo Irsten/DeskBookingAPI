@@ -52,90 +52,7 @@ namespace DeskBookingAPI.Controllers
             return Ok("The desk has been created.");
         }
 
-        [HttpPut("book")]
-        public ActionResult BookDesk([FromBody] BookingDto dto) 
-        {
-            // TODO: time validation
-            if(dto.BookingDate < DateTime.Now) { return BadRequest("The desk cannot be booked in the past."); }
-            if(dto.BookingDays < 0) { return BadRequest("You have to book the desk for at least 1 day."); }
-
-            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
-            if (desk == null) { return BadRequest("This desk does not exist."); }
-            if (desk.isAvailable == false) { return BadRequest("This desk is already booked."); }
-
-            var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
-            if (employee == null) { return BadRequest("This employee does not exist."); }
-
-            var hasAlreadyBooked = _dbContext.Desks.Any(d => d.EmployeeId == dto.EmployeeId);
-            if (hasAlreadyBooked) { return BadRequest("You have already booked other desk."); }
-
-
-
-            _deskService.BookDesk(dto);
-
-            return Ok("The desk has been booked.");
-        }
-
-        [HttpPut("cancel-reservation")]
-        public ActionResult CancelBooking([FromBody] CancelReservationDto dto)
-        {
-            // TODO
-            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
-            if (desk == null) { return BadRequest("This desk does not exist."); }
-            if (desk.isAvailable == true) { return BadRequest("There is no reservation for this desk."); }
-
-            var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
-            if (employee == null) { return BadRequest("This employee does not exist."); }
-            if (employee.Id != desk.EmployeeId) { return BadRequest("The reservation was not made by you."); }
-
-            _deskService.CancelReservation(desk);
-
-            return Ok("The reservation has been cancelled.");
-        }
-
-        [HttpPut("change-reservation")]
-        public ActionResult ChangeReservation([FromBody] ChangeReservationDto dto)
-        {
-            // TODO
-            // TODO: time validation &  (try) calling existing methods
-            if (dto.BookingDate < DateTime.Now) { return BadRequest("The desk cannot be booked in the past."); }
-            if (dto.BookingDays < 0) { return BadRequest("You have to book the desk for at least 1 day."); }
-
-            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
-            if (desk == null) { return BadRequest("This desk does not exist."); }
-            if (desk.isAvailable == true) { return BadRequest("There is no reservation for this desk."); }
-
-            var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
-            if (employee == null) { return BadRequest("This employee does not exist."); }
-            if (employee.Id != desk.EmployeeId) { return BadRequest("The reservation was not made by you."); }
-
-            var selectedDesk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.SelectedDeskId);
-            if (selectedDesk == null) { return BadRequest("Selected desk does not exist."); }
-            if (selectedDesk.isAvailable == false) { return BadRequest("Selected desk is already booked."); }
-
-            _deskService.ChangeReservation(employee, desk, selectedDesk, dto.BookingDate, dto.BookingDays);
-
-            return Ok();
-        }
-        [HttpPut("change-days")]
-        public ActionResult ChangeDays([FromBody] BookingDto dto)
-        {
-            // TODO: time validation
-            if (dto.BookingDate < DateTime.Now) { return BadRequest("The desk cannot be booked in the past."); }
-            if (dto.BookingDays < 0) { return BadRequest("You have to book the desk for at least 1 day."); }
-
-            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
-            if (desk == null) { return BadRequest("This desk does not exist."); }
-            if (desk.isAvailable == true) { return BadRequest("This desk is not booked yet."); }
-
-            var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
-            if (employee == null) { return BadRequest("This employee does not exist."); }
-            if (employee.Id != desk.EmployeeId) { return BadRequest("The reservation was not made by you."); }
-
-            _deskService.ChangeDays(dto);
-
-            return Ok();
-        }
+        
 
         [HttpDelete("delete")]
         public ActionResult DeleteDesk([FromBody] DeleteDeskDto dto)
@@ -148,7 +65,7 @@ namespace DeskBookingAPI.Controllers
 
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             if (desk == null) { return BadRequest("This desk does not exist."); }
-            if (desk.isAvailable == false) { return BadRequest("This desk cannot be deleted because it is booked."); }
+            //if (desk.isAvailable == false) { return BadRequest("This desk cannot be deleted because it is booked."); }
 
             _deskService.DeleteDesk(desk);
 

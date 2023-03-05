@@ -46,7 +46,7 @@ namespace DeskBookingAPI.Services
         {
             var listOfRooms = new List<RoomDto>();
             var rooms = _dbContext.Rooms.ToList();
-            foreach (var room in rooms)
+            /*foreach (var room in rooms)
             {
                 var tempDesks = _dbContext.Desks.Include(e => e.Employee).Where(d => d.RoomId == room.Id).ToList();
                 var tempRoom = new RoomDto()
@@ -55,7 +55,7 @@ namespace DeskBookingAPI.Services
                     Desks = _mapper.Map<List<DeskDto>>(tempDesks),
                 };
                 listOfRooms.Add(tempRoom);
-            }
+            }*/
             return listOfRooms;
         }
     }

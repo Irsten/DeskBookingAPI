@@ -10,6 +10,7 @@ namespace DeskBookingAPI.Entities
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Desk> Desks { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,13 +23,24 @@ namespace DeskBookingAPI.Entities
                 .IsRequired();
 
             modelBuilder.Entity<Desk>()
-                .Property(d => d.isAvailable)
-                .HasDefaultValue(true);
+                .Property(d => d.RoomId)
+                .IsRequired();
 
-/*            modelBuilder.Entity<Room>()
-                .HasMany(r => r.Desks)
-                .WithOne()
-                .HasForeignKey("Desk");*/
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.BookingDate)
+                .IsRequired();
+
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.ExpirationDate)
+                .IsRequired();
+
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.DeskId)
+                .IsRequired();
+
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.EmployeeId)
+                .IsRequired();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

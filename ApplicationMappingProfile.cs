@@ -8,8 +8,9 @@ namespace DeskBookingAPI
     {
         public ApplicationMappingProfile()
         {
-            CreateMap<Desk, RoomDeskDto>();
             CreateMap<Desk, DeskDto>();
+            CreateMap<Employee, EmployeeDto>();
+            CreateMap<Reservation, ReservationDto>();
         }
     }
 }
