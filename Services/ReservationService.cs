@@ -34,15 +34,14 @@ namespace DeskBookingAPI.Services
         }
         public bool BookDesk(BookingDto dto)
         {
-            // TODO
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
 
             _dbContext.Reservations.Add(new Reservation()
             {
                 DeskId = dto.DeskId,
                 EmployeeId = dto.EmployeeId,
-                BookingDate = dto.BookingDate.AddDays(dto.BookingDays - 1),
-                ExpirationDate = dto.BookingDate
+                BookingDate = dto.BookingDate,
+                ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1)
             });
 
             _dbContext.SaveChanges();
@@ -52,7 +51,6 @@ namespace DeskBookingAPI.Services
 
         public bool CancelReservation(Reservation reservation)
         {
-            // TODO
             _dbContext.Reservations.Remove(reservation);
             _dbContext.SaveChanges();
 
@@ -61,7 +59,6 @@ namespace DeskBookingAPI.Services
 
         public bool ChangeDays(ChangeDaysDto dto)
         {
-            // TODO
             var reservation = _dbContext.Reservations.FirstOrDefault(r => r.Id == dto.ReservationId);
             reservation.BookingDate = dto.BookingDate;
             reservation.ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);

@@ -15,14 +15,11 @@ namespace DeskBookingAPI.Services
 
     public class RoomService : IRoomService
     {
-        // TODO
         private readonly ApplicationDbContext _dbContext;
-        private readonly IMapper _mapper; 
 
-        public RoomService(ApplicationDbContext dbContext, IMapper mapper)
+        public RoomService(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public bool CreateRoom()
@@ -41,21 +38,9 @@ namespace DeskBookingAPI.Services
             return true;
         }
 
-
         public List<RoomDto> GetAll()
         {
             var listOfRooms = new List<RoomDto>();
-            var rooms = _dbContext.Rooms.ToList();
-            /*foreach (var room in rooms)
-            {
-                var tempDesks = _dbContext.Desks.Include(e => e.Employee).Where(d => d.RoomId == room.Id).ToList();
-                var tempRoom = new RoomDto()
-                {
-                    RoomId = room.Id,
-                    Desks = _mapper.Map<List<DeskDto>>(tempDesks),
-                };
-                listOfRooms.Add(tempRoom);
-            }*/
             return listOfRooms;
         }
     }

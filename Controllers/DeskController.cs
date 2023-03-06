@@ -52,20 +52,15 @@ namespace DeskBookingAPI.Controllers
             return Ok("The desk has been created.");
         }
 
-        
-
         [HttpDelete("delete")]
         public ActionResult DeleteDesk([FromBody] DeleteDeskDto dto)
         {
-            // TODO
-            // Only admin
             var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
             if (employee == null) { return BadRequest("The desk cannot be deleted because this employee does not exist."); }
             if (employee.IsAdmin == false) { return BadRequest("You have to be an administrator to delete a desk."); }
 
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             if (desk == null) { return BadRequest("This desk does not exist."); }
-            //if (desk.isAvailable == false) { return BadRequest("This desk cannot be deleted because it is booked."); }
 
             _deskService.DeleteDesk(desk);
 

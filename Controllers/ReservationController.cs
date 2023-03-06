@@ -29,7 +29,8 @@ namespace DeskBookingAPI.Controllers
         public ActionResult BookDesk([FromBody] BookingDto dto)
         {
             if (dto.BookingDate < DateTime.Now) { return BadRequest("The desk cannot be booked in the past."); }
-            if (dto.BookingDays < 0) { return BadRequest("You have to book the desk for at least 1 day."); }
+            if (dto.BookingDays < 1) { return BadRequest("You have to book the desk for at least 1 day."); }
+            if (dto.BookingDays > 5) { return BadRequest("You cannot book a desk for more than 5 days."); }
 
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             if (desk == null) { return BadRequest("This desk does not exist."); }
@@ -41,7 +42,9 @@ namespace DeskBookingAPI.Controllers
                 foreach (var reservation in reservations)
                 {
                     if ((dto.BookingDate > reservation.BookingDate && dto.BookingDate < reservation.ExpirationDate) ||
-                        expirationDate > reservation.BookingDate && expirationDate < reservation.ExpirationDate)
+                        (expirationDate > reservation.BookingDate && expirationDate < reservation.ExpirationDate) ||
+                        dto.BookingDate == reservation.BookingDate || dto.BookingDate == reservation.ExpirationDate ||
+                        expirationDate == reservation.BookingDate || expirationDate == reservation.ExpirationDate)
                     {
                         return BadRequest("You cannot book a desk on this date.");
                     }
@@ -52,7 +55,21 @@ namespace DeskBookingAPI.Controllers
             if (employee == null) { return BadRequest("This employee does not exist."); }
 
             var hasAlreadyBooked = _dbContext.Reservations.Any(d => d.EmployeeId == dto.EmployeeId);
-            if (hasAlreadyBooked) { return BadRequest("You have already booked other desk."); }
+
+            var employeeReservations = _dbContext.Reservations.Where(r => r.EmployeeId == employee.Id).ToList();
+            if (employeeReservations != null)
+            {
+                foreach (var reservation in employeeReservations)
+                {
+                    if ((dto.BookingDate > reservation.BookingDate && dto.BookingDate < reservation.ExpirationDate) ||
+                        (expirationDate > reservation.BookingDate && expirationDate < reservation.ExpirationDate) ||
+                        dto.BookingDate == reservation.BookingDate || dto.BookingDate == reservation.ExpirationDate ||
+                        expirationDate == reservation.BookingDate || expirationDate == reservation.ExpirationDate)
+                    {
+                        return BadRequest("You have already booked a desk for this date. Try another date.");
+                    }
+                }
+            }
 
             _reservationService.BookDesk(dto);
 
@@ -85,7 +102,8 @@ namespace DeskBookingAPI.Controllers
         public ActionResult ChangeDays([FromBody] ChangeDaysDto dto)
         {
             if (dto.BookingDate < DateTime.Now) { return BadRequest("The desk cannot be booked in the past."); }
-            if (dto.BookingDays < 0) { return BadRequest("You have to book the desk for at least 1 day."); }
+            if (dto.BookingDays < 1) { return BadRequest("You have to book the desk for at least 1 day."); }
+            if (dto.BookingDays > 5) { return BadRequest("You cannot book a desk for more than 5 days."); }
 
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             if (desk == null) { return BadRequest("This desk does not exist."); }
@@ -97,9 +115,11 @@ namespace DeskBookingAPI.Controllers
             var expirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
             if (reservation != null) { return BadRequest("This reservation does not exist."); }
             if ((dto.BookingDate > reservation.BookingDate && dto.BookingDate < reservation.ExpirationDate) ||
-                    expirationDate > reservation.BookingDate && expirationDate < reservation.ExpirationDate)
+                (expirationDate > reservation.BookingDate && expirationDate < reservation.ExpirationDate) ||
+                dto.BookingDate == reservation.BookingDate || dto.BookingDate == reservation.ExpirationDate ||
+                expirationDate == reservation.BookingDate || expirationDate == reservation.ExpirationDate)
             {
-                return BadRequest("You cannot book a desk on this date.");
+                return BadRequest("You cannot book a desk for this date.");
             }
 
             _reservationService.ChangeDays(dto);
@@ -110,7 +130,6 @@ namespace DeskBookingAPI.Controllers
         [HttpDelete("cancel-reservation")]
         public ActionResult CancelReservation([FromBody] CancelReservationDto dto)
         {
-            // TODO
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             if (desk == null) { return BadRequest("This desk does not exist."); }
 
