@@ -16,10 +16,12 @@ namespace DeskBookingAPI.Services
     public class RoomService : IRoomService
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public RoomService(ApplicationDbContext dbContext)
+        public RoomService(ApplicationDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public bool CreateRoom()
@@ -40,8 +42,16 @@ namespace DeskBookingAPI.Services
 
         public List<RoomDto> GetAll()
         {
-            var listOfRooms = new List<RoomDto>();
-            return listOfRooms;
+            var rooms = _dbContext.Rooms.ToList();
+
+            var mappedRooms = _mapper.Map<List<RoomDto>>(rooms);
+
+            foreach (var room in mappedRooms)
+            {
+                room.DesksNumber = _dbContext.Desks.Where(d => d.RoomId == room.Id).ToList().Count();
+            }
+
+            return mappedRooms;
         }
     }
 }

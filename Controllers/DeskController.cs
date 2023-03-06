@@ -62,7 +62,10 @@ namespace DeskBookingAPI.Controllers
             var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.DeskId);
             if (desk == null) { return BadRequest("This desk does not exist."); }
 
-            _deskService.DeleteDesk(desk);
+            var anyReservations = _dbContext.Reservations.Any(r => r.DeskId == desk.Id);
+            if (anyReservations == true) { return BadRequest("A desk cannot be deleted if there are any reservations assigned to it."); }
+
+                _deskService.DeleteDesk(desk);
 
             return Ok("The desk has been deleted.");
         }

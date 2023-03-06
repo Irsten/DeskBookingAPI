@@ -56,6 +56,8 @@ namespace DeskBookingAPI.Services
         {
             // TODO
             var desk = _dbContext.Desks.Include(r => r.Reservations).FirstOrDefault(d => d.Id == deskId);
+            if (desk == null) { return null; }
+
             if (desk.Reservations != null)
             {
                 foreach (var reservation in desk.Reservations)

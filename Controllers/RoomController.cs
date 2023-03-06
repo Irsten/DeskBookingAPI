@@ -47,7 +47,7 @@ namespace DeskBookingAPI.Controllers
             if (room == null) { return BadRequest("This room does not exist."); }
 
             var desksInRoom = _dbContext.Desks.Where(d => d.RoomId == dto.RoomId).ToList();
-            if (desksInRoom != null) { return BadRequest("The room cannot be deleted if there are any desks in it."); }
+            if (desksInRoom.Count() != 0) { return BadRequest("The room cannot be deleted if there are any desks in it."); }
 
             var deleting = _roomService.DeleteRoom(room);
             if (deleting == false) { return BadRequest("Room cannot be deleted"); }

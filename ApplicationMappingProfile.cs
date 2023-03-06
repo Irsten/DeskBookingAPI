@@ -11,6 +11,7 @@ namespace DeskBookingAPI
             CreateMap<Desk, DeskDto>();
             CreateMap<Employee, EmployeeDto>();
             CreateMap<Reservation, ReservationDto>();
+            CreateMap<Room, RoomDto>();
         }
     }
 }

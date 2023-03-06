@@ -79,6 +79,7 @@ namespace DeskBookingAPI.Controllers
         [HttpPut("change-reservation")]
         public ActionResult ChangeReservation([FromBody] ChangeReservationDto dto)
         {
+            // TODO
             var cancelReservation = new CancelReservationDto()
             {
                 DeskId = dto.CurrentDeskId,
@@ -113,13 +114,21 @@ namespace DeskBookingAPI.Controllers
 
             var reservation = _dbContext.Reservations.FirstOrDefault(r => r.EmployeeId== dto.EmployeeId);
             var expirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
-            if (reservation != null) { return BadRequest("This reservation does not exist."); }
-            if ((dto.BookingDate > reservation.BookingDate && dto.BookingDate < reservation.ExpirationDate) ||
-                (expirationDate > reservation.BookingDate && expirationDate < reservation.ExpirationDate) ||
-                dto.BookingDate == reservation.BookingDate || dto.BookingDate == reservation.ExpirationDate ||
-                expirationDate == reservation.BookingDate || expirationDate == reservation.ExpirationDate)
+            if (reservation == null) { return BadRequest("This reservation does not exist."); }
+
+            var otherReservations = _dbContext.Reservations.Where(r => r.Id != reservation.Id).ToList();
+            if (otherReservations.Any())
             {
-                return BadRequest("You cannot book a desk for this date.");
+                foreach (var oReservation in otherReservations)
+                {
+                    if ((dto.BookingDate > oReservation.BookingDate && dto.BookingDate < oReservation.ExpirationDate) ||
+                    (expirationDate > oReservation.BookingDate && expirationDate < oReservation.ExpirationDate) ||
+                    dto.BookingDate == oReservation.BookingDate || dto.BookingDate == oReservation.ExpirationDate ||
+                    expirationDate == oReservation.BookingDate || expirationDate == oReservation.ExpirationDate)
+                    {
+                        return BadRequest("You cannot book a desk for this date.");
+                    }
+                }
             }
 
             _reservationService.ChangeDays(dto);

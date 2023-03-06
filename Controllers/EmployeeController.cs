@@ -27,8 +27,8 @@ namespace DeskBookingAPI.Controllers
         [HttpPost("create")]
         public ActionResult CreateEmployee([FromBody] EmployeeDto employeeDto)
         {
-            if (employeeDto.FirstName == null) { return BadRequest("Employee first name cannot be empty."); }
-            if (employeeDto.LastName == null) { return BadRequest("Employee last name cannot be empty."); }
+            if (employeeDto.FirstName == null || employeeDto.FirstName == "") { return BadRequest("Employee first name cannot be empty."); }
+            if (employeeDto.LastName == null || employeeDto.LastName == "") { return BadRequest("Employee last name cannot be empty."); }
 
             var process = _employeeService.Create(employeeDto);
             if(!process) { return BadRequest("Employee cannot be created."); }
@@ -40,7 +40,7 @@ namespace DeskBookingAPI.Controllers
         public ActionResult DeleteDesk([FromRoute] int employeeId)
         {
             var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == employeeId);
-            if(employee != null) { return BadRequest("There is no employee with this ID.");  }
+            if(employee == null) { return BadRequest("There is no employee with this ID.");  }
 
             var deleting = _employeeService.Delete(employee);
             if(!deleting) { return BadRequest("Employee cannot be deleted."); }
