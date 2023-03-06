@@ -9,6 +9,11 @@ namespace DeskBookingAPI.Services
     {
         List<ReservationDto> GetAll();
         bool BookDesk(BookingDto dto);
+        bool ChangeReservation(
+            Reservation reservation,
+            int selectedDeskId, 
+            DateTime bookingDate, 
+            int bookingDays);
         bool CancelReservation(Reservation reservation);
         bool ChangeDays(ChangeDaysDto dto);
     }
@@ -43,6 +48,21 @@ namespace DeskBookingAPI.Services
                 BookingDate = dto.BookingDate,
                 ExpirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1)
             });
+
+            _dbContext.SaveChanges();
+
+            return true;
+        }
+
+        public bool ChangeReservation(
+            Reservation reservation, 
+            int selectedDeskId,  
+            DateTime bookingDate,
+            int bookingDays)
+        {
+            reservation.DeskId = selectedDeskId;
+            reservation.BookingDate = bookingDate;
+            reservation.ExpirationDate = bookingDate.AddDays(bookingDays - 1);
 
             _dbContext.SaveChanges();
 

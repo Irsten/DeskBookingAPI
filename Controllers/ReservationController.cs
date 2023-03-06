@@ -79,23 +79,57 @@ namespace DeskBookingAPI.Controllers
         [HttpPut("change-reservation")]
         public ActionResult ChangeReservation([FromBody] ChangeReservationDto dto)
         {
-            // TODO
-            var cancelReservation = new CancelReservationDto()
-            {
-                DeskId = dto.CurrentDeskId,
-                EmployeeId = dto.EmployeeId,
-                ReservationId = dto.ReservationId,
-            };
-            CancelReservation(cancelReservation);
+            if (dto.BookingDate < DateTime.Now) { return BadRequest("The desk cannot be booked in the past."); }
+            if (dto.BookingDays < 1) { return BadRequest("You have to book the desk for at least 1 day."); }
+            if (dto.BookingDays > 5) { return BadRequest("You cannot book a desk for more than 5 days."); }
 
-            var newReservation = new BookingDto()
+            var desk = _dbContext.Desks.FirstOrDefault(d => d.Id == dto.CurrentDeskId);
+            if (desk == null) { return BadRequest("This desk does not exist."); }
+
+            var employee = _dbContext.Employees.FirstOrDefault(e => e.Id == dto.EmployeeId);
+            if (employee == null) { return BadRequest("This employee does not exist."); }
+
+            var currentReservation = _dbContext.Reservations.FirstOrDefault(r => r.Id == dto.ReservationId);
+            if (currentReservation == null) { return BadRequest("This reservation does not exist."); }
+            if (currentReservation.EmployeeId != employee.Id) { return BadRequest("The reservation was not made by you."); }
+
+            var expirationDate = dto.BookingDate.AddDays(dto.BookingDays - 1);
+            var otherReservations = _dbContext.Reservations.Where(r => r.Id != currentReservation.Id).ToList();
+            if (otherReservations.Any())
             {
-                EmployeeId = dto.EmployeeId,
-                DeskId = dto.SelectedDeskId,
-                BookingDate = dto.BookingDate,
-                BookingDays = dto.BookingDays,
-            };
-            BookDesk(newReservation);
+                var employeeReservations = otherReservations.Where(e => e.EmployeeId == employee.Id).ToList();
+                if (employeeReservations.Any())
+                {
+                    foreach (var eReservation in employeeReservations)
+                    {
+                        if ((dto.BookingDate > eReservation.BookingDate && dto.BookingDate < eReservation.ExpirationDate) ||
+                        (expirationDate > eReservation.BookingDate && expirationDate < eReservation.ExpirationDate) ||
+                        dto.BookingDate == eReservation.BookingDate || dto.BookingDate == eReservation.ExpirationDate ||
+                        expirationDate == eReservation.BookingDate || expirationDate == eReservation.ExpirationDate)
+                        {
+                            return BadRequest("You have already booked a desk for this date. Try another date.");
+                        }
+                    }
+                }
+
+                foreach (var oReservation in otherReservations)
+                {
+                    if ((dto.BookingDate > oReservation.BookingDate && dto.BookingDate < oReservation.ExpirationDate) ||
+                    (expirationDate > oReservation.BookingDate && expirationDate < oReservation.ExpirationDate) ||
+                    dto.BookingDate == oReservation.BookingDate || dto.BookingDate == oReservation.ExpirationDate ||
+                    expirationDate == oReservation.BookingDate || expirationDate == oReservation.ExpirationDate)
+                    {
+                        return BadRequest("You cannot book a desk for this date.");
+                    }
+                }
+            }
+
+            var result = _reservationService.ChangeReservation(
+                currentReservation,
+                dto.SelectedDeskId,
+                dto.BookingDate, 
+                dto.BookingDays);
+            if(!result) { return BadRequest("Reservation cannot be changed."); }
 
             return Ok("The reservation has been changed.");
         }
@@ -119,6 +153,21 @@ namespace DeskBookingAPI.Controllers
             var otherReservations = _dbContext.Reservations.Where(r => r.Id != reservation.Id).ToList();
             if (otherReservations.Any())
             {
+                var employeeReservations = otherReservations.Where(e => e.EmployeeId == employee.Id).ToList();
+                if (employeeReservations.Any())
+                {
+                    foreach (var eReservation in employeeReservations)
+                    {
+                        if ((dto.BookingDate > eReservation.BookingDate && dto.BookingDate < eReservation.ExpirationDate) ||
+                        (expirationDate > eReservation.BookingDate && expirationDate < eReservation.ExpirationDate) ||
+                        dto.BookingDate == eReservation.BookingDate || dto.BookingDate == eReservation.ExpirationDate ||
+                        expirationDate == eReservation.BookingDate || expirationDate == eReservation.ExpirationDate)
+                        {
+                            return BadRequest("You have already booked a desk for this date. Try another date.");
+                        }
+                    }
+                }
+
                 foreach (var oReservation in otherReservations)
                 {
                     if ((dto.BookingDate > oReservation.BookingDate && dto.BookingDate < oReservation.ExpirationDate) ||
